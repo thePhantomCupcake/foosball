@@ -11,9 +11,10 @@ fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
         configureHTTP()
         configureAdministration()
+        configureSecurity()
         configureRouting()
         configureSerialization()
         configureMonitoring()
-        configureSecurity()
+        configureDependencies()
     }.start(wait = true)
 }
