@@ -58,8 +58,8 @@ class CognitoService {
         private val APP_CLIENT_ID: String = "7s8fs59vvtr1kfl2cup6eutght"
         private val USER_POOL: String = "eu-west-2_pzQSusRXg"
 
-        private val APP_CLIENT_ACCESS_KEY: String = "AKIARU27BXSJZIOBCXFX"
-        private val APP_CLIENT_SECRET_KEY: String = "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"
+        private var APP_CLIENT_ACCESS_KEY: String = System.getProperty("APP_CLIENT_ACCESS_KEY")
+        private var APP_CLIENT_SECRET_KEY: String = System.getProperty("APP_CLIENT_SECRET_KEY")
 
         private val COGNITO_CLIENT = AWSCognitoIdentityProviderClientBuilder.standard()
             .withCredentials(
