@@ -105,7 +105,6 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.guava:failureaccess:1.0.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.code.findbugs:jsr305:3.0.2" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: org.checkerframework:checker-qual:3.5.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.errorprone:error_prone_annotations:2.3.4" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.j2objc:j2objc-annotations:1.3" level="project" />
     <orderEntry type="library" name="Maven: io.ktor:ktor-server-netty-jvm:2.0.0-beta-1" level="project" />
@@ -161,8 +160,21 @@
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.12" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" name="Maven: io.ktor:ktor-server-caching-headers-jvm:2.0.0-beta-1" level="project" />
+    <orderEntry type="library" name="Maven: io.insert-koin:koin-ktor:3.2.0-beta-1" level="project" />
+    <orderEntry type="library" name="Maven: io.insert-koin:koin-core-jvm:3.2.0-beta-1" level="project" />
+    <orderEntry type="library" name="Maven: io.ktor:ktor-server-core:1.6.7" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains.exposed:exposed-jdbc:0.37.3" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains.exposed:exposed-core:0.37.3" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.exposed:exposed-dao:0.37.3" level="project" />
     <orderEntry type="library" name="Maven: com.h2database:h2:2.1.210" level="project" />
+    <orderEntry type="library" name="Maven: org.postgresql:postgresql:42.3.3" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: org.checkerframework:checker-qual:3.5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.exposed:exposed-java-time:0.37.3" level="project" />
+    <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-cognitoidp:1.12.178" level="project" />
+    <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-core:1.12.178" level="project" />
+    <orderEntry type="library" name="Maven: software.amazon.ion:ion-java:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.12.6" level="project" />
+    <orderEntry type="library" name="Maven: joda-time:joda-time:2.8.1" level="project" />
+    <orderEntry type="library" name="Maven: com.amazonaws:jmespath-java:1.12.178" level="project" />
   </component>
 </module>
