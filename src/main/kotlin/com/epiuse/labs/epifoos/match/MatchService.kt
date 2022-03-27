@@ -2,6 +2,7 @@ package com.epiuse.labs.epifoos.match
 
 import com.epiuse.labs.epifoos.game.Game
 import com.epiuse.labs.epifoos.player.Player
+import com.epiuse.labs.epifoos.player.PlayerEloService
 import com.epiuse.labs.epifoos.player.Players
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -33,7 +34,7 @@ object MatchService {
             }
         }
 
-        // Capture.updateEloForPlayers(newMatch) // Die Elo code in Scala is confusing
+        PlayerEloService.updateEloForPlayers(newMatch)
 
         newMatch.toSummary()
     }

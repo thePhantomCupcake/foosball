@@ -9,35 +9,65 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.javatime.timestamp
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.format.DateTimeFormatter.ISO_INSTANT
 
 object PlayerElos : IntIdTable("player_elo") {
 
     var player = reference("player", Players)
     var capturedDate = timestamp("captured_date")
     var match = reference("match_id", Matches)
-    var change = float("change")
-    var elo = float("elo")
+    var change = double("change")
+    var elo = double("elo").default(PlayerElo.INITIAL_ELO)
 
-    fun findLatestElos(playerIds: List<String>): List<PlayerElo> {
-        val latestElos = mutableListOf<PlayerElo>()
-        transaction {
+    fun findLatestElos(playerIds: List<String>): List<PlayerEloSummary> {
+        return transaction {
             PlayerElos.run {
                 select {
                     id inSubQuery slice(id.max()).selectAll().groupBy(player).having { player inList playerIds }
                 }
             }
-        }
-        return latestElos
+        }.map { PlayerElo.toEntity(it) }
     }
 }
 
 class PlayerElo(id: EntityID<Int>) : IntEntity(id) {
-
-    companion object : IntEntityClass<PlayerElo>(PlayerElos)
 
     var player by Player referencedOn PlayerElos.player
     var capturedDate by PlayerElos.capturedDate
     var match by Match referencedOn PlayerElos.match
     var change by PlayerElos.change
     var elo by PlayerElos.elo
+
+    fun toSummary(): PlayerEloSummary {
+        return PlayerEloSummary(
+            player.id.value,
+            ISO_INSTANT.format(capturedDate),
+            match.id.value,
+            change,
+            elo
+        )
+    }
+
+    companion object : IntEntityClass<PlayerElo>(PlayerElos) {
+
+        const val INITIAL_ELO: Double = 1000.0
+
+        fun toEntity(resultRow: ResultRow): PlayerEloSummary {
+            return PlayerEloSummary(
+                resultRow[PlayerElos.player].value,
+                ISO_INSTANT.format(resultRow[PlayerElos.capturedDate]),
+                resultRow[PlayerElos.match].value,
+                resultRow[PlayerElos.change],
+                resultRow[PlayerElos.elo]
+            )
+        }
+    }
 }
+
+data class PlayerEloSummary(
+    val playerId: String,
+    val capturedDate: String,
+    val matchId: Int,
+    val change: Double,
+    val elo: Double
+)

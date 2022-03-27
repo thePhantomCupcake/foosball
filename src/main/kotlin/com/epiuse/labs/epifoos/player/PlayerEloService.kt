@@ -13,7 +13,7 @@ object PlayerEloService {
     private const val RESULT_WEIGHT = 0.5
     private const val GOAL_WEIGHT = 1.0 - RESULT_WEIGHT
 
-/*    fun updateEloForPlayers(match: Match) {
+    fun updateEloForPlayers(match: Match) {
         val players = match.getPlayers()
         val currentElos = findCurrentElos(players)
         val eloChanges = calculateMatchEloChanges(match, currentElos)
@@ -34,23 +34,25 @@ object PlayerEloService {
 
     }
 
-    private fun findCurrentElos(players: List<Player>): Map<String, Float> {
-        return PlayerElos.findLatestElos(players.map { it.id.value }).associate { it.player.id.value to it.elo }
+    private fun findCurrentElos(players: List<Player>): Map<String, Double> {
+        return PlayerElos.findLatestElos(players.map { it.id.value }).associate { it.playerId to it.elo }
     }
 
-    private fun calculateMatchEloChanges(match: Match, startElos: Map<String, Float>): Map<String, Float> {
+    private fun calculateMatchEloChanges(match: Match, startElos: Map<String, Double>): Map<String, Double> {
         return match.getPlayers().associate {
-            it.id.value to match.games.fold(0.0) { initial, game ->
-                {
-                    initial+calculateGameEloChanges()
-                }
-            }.toFloat()
-        }.toMap()
+            var playerElo = 0.0
+            for (game in match.games) {
+                playerElo += calculateGameEloChanges(game, startElos)[it.id.value]!!
+            }
+            it.id.value to playerElo
+        }
     }
 
-    private fun calculateGameEloChanges(game: Game, startElos: Map<String, Float>): Map<String, Float> {
-        val leftEloAverage = (startElos[game.leftPlayer1] + startElos[game.leftPlayer2]) / 2
-        val rightEloAverage = (startElos[game.rightPlayer1] + startElos[game.rightPlayer2]) / 2
+    private fun calculateGameEloChanges(game: Game, startElos: Map<String, Double>): Map<String, Double> {
+        val leftEloAverage = (startElos[game.leftPlayer1.id.value]!! +
+                startElos[game.leftPlayer2.id.value]!!) / 2
+        val rightEloAverage = (startElos[game.rightPlayer1.id.value]!! +
+                startElos[game.rightPlayer2.id.value]!!) / 2
 
         val leftExpectedScore = estimateScoreVersus(leftEloAverage, rightEloAverage)
         val rightExpectedScore = 1.0 - leftExpectedScore
@@ -58,13 +60,53 @@ object PlayerEloService {
         val resultBasedEloChanges = calculateResultBasedEloChanges(game, leftExpectedScore, rightExpectedScore)
         val goalBasedEloChanges = calculateGoalBasedEloChanges(game, leftExpectedScore, rightExpectedScore)
 
-        game.players.map { player ->
-            player -> (resultBasedEloChanges(player) * ResultWeight+goalBasedEloChanges(player) * GoalWeight)
-        }.toMap
+        return game.match.getPlayers().associate {
+            it.id.value to (
+                    resultBasedEloChanges[it.id.value]!! *
+                            RESULT_WEIGHT +
+                            goalBasedEloChanges[it.id.value]!! *
+                            GOAL_WEIGHT
+                    )
+        }.toMap()
+    }
+
+    private fun calculateResultBasedEloChanges(
+        game: Game, leftExpectedScore: Double,
+        rightExpectedScore: Double
+    ): Map<String, Double> {
+        val leftActualScore = game.leftResult().value / Game.Result.MAX
+        val rightActualScore = game.rightResult().value / Game.Result.MAX
+
+        return game.match.getPlayers().associate {
+            val eloChange = if (game.leftPlayers().contains(it)) Match.K_VALUE * (leftActualScore - leftExpectedScore)
+            else Match.K_VALUE * (rightActualScore - rightExpectedScore)
+            it.id.value to eloChange
+        }
+    }
+
+    private fun calculateGoalBasedEloChanges(
+        game: Game, leftExpectedScore: Double,
+        rightExpectedScore: Double
+    ): Map<String, Double> {
+        val normalizeScore: (Int) -> Double = {
+            (it + Game.MAX_SCORE) / (2.0 * Game.MAX_SCORE)
+        }
+
+        val leftGoalDifference = (game.leftTotal() - game.rightTotal())
+        val rightGoalDifference = (game.rightTotal() - game.leftTotal())
+
+        val leftActualScore = normalizeScore(leftGoalDifference)
+        val rightActualScore = normalizeScore(rightGoalDifference)
+
+        return game.match.getPlayers().associate {
+            val eloChange = if (game.leftPlayers().contains(it)) Match.K_VALUE * (leftActualScore - leftExpectedScore)
+            else Match.K_VALUE * (rightActualScore - rightExpectedScore)
+            it.id.value to eloChange
+        }.toMap()
     }
 
     private fun estimateScoreVersus(playerElo: Double, opponentElo: Double): Double {
         return 1.0 / (1.0 + 10.0.pow(((opponentElo - playerElo) / ELO_WEIGHT)))
-    }*/
+    }
 }
 

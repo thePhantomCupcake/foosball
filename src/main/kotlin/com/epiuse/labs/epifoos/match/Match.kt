@@ -24,7 +24,6 @@ object Matches : IntIdTable(("match")) {
 }
 
 class Match(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<Match>(Matches)
 
     var capturedBy by Player referencedOn Matches.capturedBy
     var capturedDate by Matches.capturedDate
@@ -46,6 +45,11 @@ class Match(id: EntityID<Int>) : IntEntity(id) {
         capturedBy = capturedBy.id.value,
         capturedDate = DateTimeFormatter.ISO_INSTANT.format(capturedDate)
     )
+
+    companion object : IntEntityClass<Match>(Matches) {
+
+        val K_VALUE = 36.0;
+    }
 }
 
 data class MatchSummary(
