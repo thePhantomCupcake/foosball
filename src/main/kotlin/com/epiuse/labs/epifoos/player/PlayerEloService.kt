@@ -13,12 +13,12 @@ object PlayerEloService {
     private const val RESULT_WEIGHT = 0.5
     private const val GOAL_WEIGHT = 1.0 - RESULT_WEIGHT
 
-    fun updateEloForPlayers(match: Match) {
+    fun updateEloForPlayers(match: Match): List<PlayerEloSummary> {
         val players = match.getPlayers()
         val currentElos = findCurrentElos(players)
         val eloChanges = calculateMatchEloChanges(match, currentElos)
 
-        players.map {
+        return players.map {
             val previousElo = currentElos[it.id.toString()]!!
             val eloChange = eloChanges[it.id.toString()]!!
             val updatedElo = previousElo + eloChange
@@ -29,9 +29,8 @@ object PlayerEloService {
                 this.match = match
                 this.change = eloChange
                 this.elo = updatedElo
-            }
+            }.toSummary()
         }
-
     }
 
     private fun findCurrentElos(players: List<Player>): Map<String, Double> {

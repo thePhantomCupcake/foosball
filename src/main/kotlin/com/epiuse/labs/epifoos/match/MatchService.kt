@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 object MatchService {
 
-    fun captureMatch(captureMatchRequest: CaptureMatchRequest): MatchSummary = transaction {
+    fun captureMatch(captureMatchRequest: CaptureMatchRequest): MatchWithEloChanges = transaction {
         val newMatch = Match.new {
             capturedBy = Player.findById(captureMatchRequest.capturedBy)!!
         }
@@ -34,9 +34,10 @@ object MatchService {
             }
         }
 
-        PlayerEloService.updateEloForPlayers(newMatch)
-
-        newMatch.toSummary()
+        MatchWithEloChanges(
+            newMatch.toSummary(),
+            PlayerEloService.updateEloForPlayers(newMatch)
+        )
     }
 }
 
