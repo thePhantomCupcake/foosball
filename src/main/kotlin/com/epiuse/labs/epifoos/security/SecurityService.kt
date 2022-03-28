@@ -5,20 +5,19 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import com.epiuse.labs.epifoos.security.cognito.CognitoService
 import org.koin.dsl.module
 
-class SecurityService(private val cognitoService: CognitoService) {
+object SecurityService {
 
     fun signIn(signInRequest: SignInRequest): DecodedJWT {
-        val signInResult = cognitoService.signIn(signInRequest)
+        val signInResult = CognitoService.signIn(signInRequest)
 
         return JWT.decode(signInResult.accessToken)
     }
 
     fun signUp(signUpRequest: SignUpRequest) {
-        cognitoService.signUp(signUpRequest)
+        CognitoService.signUp(signUpRequest)
     }
-}
 
-val securityServiceModule = module {
-    single { SecurityService(get()) }
-    single { CognitoService() }
+    fun confirmSignUp(confirmSignUpRequest: ConfirmSignUpRequest) {
+        CognitoService.confirmSignUp(confirmSignUpRequest)
+    }
 }

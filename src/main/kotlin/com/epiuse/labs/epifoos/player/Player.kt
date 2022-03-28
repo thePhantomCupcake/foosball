@@ -22,4 +22,14 @@ class Player(id: EntityID<String>) : Entity<String>(id) {
     var username by Players.username
     var firstName by Players.firstName
     var lastName by Players.lastName
+
+    fun toSummary(): PlayerSummary {
+        return PlayerSummary(
+            id.value,
+            username,
+            firstName,
+            lastName,
+            PlayerElos.findLatestElo(id.value)
+        )
+    }
 }

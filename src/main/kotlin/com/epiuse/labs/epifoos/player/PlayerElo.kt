@@ -19,14 +19,20 @@ object PlayerElos : IntIdTable("player_elo") {
     var change = double("change")
     var elo = double("elo").default(PlayerElo.INITIAL_ELO)
 
-    fun findLatestElos(playerIds: List<String>): List<PlayerEloSummary> {
+    fun findLatestElo(playerId: String): PlayerEloSummary? {
+        return transaction {
+            PlayerElo.find { player eq playerId }.maxByOrNull { capturedDate }
+        }?.toSummary()
+    }
+
+    fun findLatestElos(playerIds: List<String>): List<PlayerElo> {
         return transaction {
             PlayerElos.run {
                 select {
                     id inSubQuery slice(id.max()).selectAll().groupBy(player).having { player inList playerIds }
                 }
             }
-        }.map { PlayerElo.toEntity(it) }
+        }.map { PlayerElo.wrapRow(it) }
     }
 }
 
@@ -51,16 +57,6 @@ class PlayerElo(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<PlayerElo>(PlayerElos) {
 
         const val INITIAL_ELO: Double = 1000.0
-
-        fun toEntity(resultRow: ResultRow): PlayerEloSummary {
-            return PlayerEloSummary(
-                resultRow[PlayerElos.player].value,
-                ISO_INSTANT.format(resultRow[PlayerElos.capturedDate]),
-                resultRow[PlayerElos.match].value,
-                resultRow[PlayerElos.change],
-                resultRow[PlayerElos.elo]
-            )
-        }
     }
 }
 

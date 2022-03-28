@@ -1,42 +1,31 @@
 package com.epiuse.labs.epifoos.plugins
 
-import com.amazonaws.services.cognitoidp.model.UnauthorizedException
-import io.ktor.server.auth.*
-import io.ktor.util.*
-import io.ktor.server.auth.jwt.*
+import com.auth0.jwk.JwkProvider
+import com.auth0.jwk.UrlJwkProvider
 import com.auth0.jwt.JWT
-import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
-import com.auth0.jwt.exceptions.JWTVerificationException
-import io.ktor.client.*
-import io.ktor.client.engine.apache.*
-import io.ktor.server.locations.*
-import io.ktor.http.*
-import io.ktor.server.sessions.*
+import com.epiuse.labs.epifoos.security.cognito.CognitoService
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.response.*
-import io.ktor.server.request.*
-import io.ktor.server.routing.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+
 
 fun Application.configureSecurity() {
 
     install(Authentication) {
         jwt {
-            val jwtAudience = "http://0.0.0.0:8080/hello"
+            val jwtAudience = CognitoService.APP_CLIENT_ID
 
-            realm = "Access to 'hello'"
+            realm = "Access to 'EPIFoos'"
 
-            val jwtVerifier = JWT
-                .require(Algorithm.HMAC256("thisIsASecret"))
-                .withAudience(jwtAudience)
-                .withIssuer("http://0.0.0.0:8080/")
-                .build()
-            verifier(
-                jwtVerifier
+            val provider: JwkProvider = UrlJwkProvider(
+                "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_pzQSusRXg/.well-known/jwks.json"
             )
+            verifier(provider) {
+                acceptLeeway(3)
+            }
 
-            challenge { _,_ ->
+            challenge { _, _ ->
                 throw AuthenticationException()
             }
 
@@ -50,5 +39,3 @@ fun Application.configureSecurity() {
         }
     }
 }
-
-class UserSession(accessToken: String)

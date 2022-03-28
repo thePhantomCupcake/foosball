@@ -35,6 +35,5 @@ fun main() {
         configureSerialization()
         configureRouting()
         configureMonitoring()
-        configureDependencies()
     }.start(wait = true)
 }

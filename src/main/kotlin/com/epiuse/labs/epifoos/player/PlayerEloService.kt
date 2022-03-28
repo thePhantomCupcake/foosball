@@ -34,7 +34,14 @@ object PlayerEloService {
     }
 
     private fun findCurrentElos(players: List<Player>): Map<String, Double> {
-        return PlayerElos.findLatestElos(players.map { it.id.value }).associate { it.playerId to it.elo }
+        val currentElos = PlayerElos.findLatestElos(
+            players.map { it.id.value }
+        ).associate { it.player.id.value to it.elo }
+
+        if (currentElos.isEmpty()) {
+            return players.associate { it.id.value to STARTING_ELO }
+        }
+        return currentElos
     }
 
     private fun calculateMatchEloChanges(match: Match, startElos: Map<String, Double>): Map<String, Double> {
