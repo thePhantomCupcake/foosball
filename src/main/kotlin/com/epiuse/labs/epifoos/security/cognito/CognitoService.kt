@@ -4,7 +4,6 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder
 import com.amazonaws.services.cognitoidp.model.*
-import com.auth0.jwt.JWT
 import com.epiuse.labs.epifoos.security.ConfirmSignUpRequest
 import com.epiuse.labs.epifoos.security.SignInRequest
 import com.epiuse.labs.epifoos.security.SignUpRequest
@@ -13,8 +12,12 @@ object CognitoService {
 
     fun signUp(signUpRequest: SignUpRequest): SignUpResult {
         val cognitoRequest = SignUpRequest()
-            .withUsername(signUpRequest.email)
+            .withUsername(signUpRequest.username)
+            .withClientId(APP_CLIENT_ID)
             .withUserAttributes(
+                AttributeType()
+                    .withName("email")
+                    .withValue(signUpRequest.email),
                 AttributeType()
                     .withName("given_name")
                     .withValue(signUpRequest.firstName),
@@ -39,7 +42,7 @@ object CognitoService {
 
     fun signIn(signInRequest: SignInRequest): AuthenticationResultType {
         val authParams = hashMapOf(
-            "USERNAME" to signInRequest.email,
+            "USERNAME" to signInRequest.username,
             "PASSWORD" to signInRequest.password
         )
 
@@ -53,16 +56,18 @@ object CognitoService {
     }
 
     private const val AWS_REGION: String = "eu-west-2"
-    const val APP_CLIENT_ID: String = "7s8fs59vvtr1kfl2cup6eutght"
-    private const val USER_POOL: String = "eu-west-2_pzQSusRXg"
+    private const val USER_POOL: String = "eu-west-2_xJzoo0rjB"
 
-    private var APP_CLIENT_ACCESS_KEY: String = System.getProperty("APP_CLIENT_ACCESS_KEY")
-    private var APP_CLIENT_SECRET_KEY: String = System.getProperty("APP_CLIENT_SECRET_KEY")
+    private var AWS_ACCESS_KEY: String = System.getenv("AWS_ACCESS_KEY")
+    private var AWS_SECRET_KEY: String = System.getenv("AWS_SECRET_KEY")
+
+    const val APP_CLIENT_ID: String = "77d9n50nd4ucv0bjkidg521nlm"
+    private var APP_CLIENT_SECRET_KEY: String = System.getenv("APP_CLIENT_SECRET_KEY")
 
     private val COGNITO_CLIENT = AWSCognitoIdentityProviderClientBuilder.standard()
         .withCredentials(
             AWSStaticCredentialsProvider(
-                BasicAWSCredentials(APP_CLIENT_ACCESS_KEY, APP_CLIENT_SECRET_KEY)
+                BasicAWSCredentials(AWS_ACCESS_KEY, AWS_SECRET_KEY)
             )
         )
         .withRegion(AWS_REGION)

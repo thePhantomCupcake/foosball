@@ -10,7 +10,7 @@ object Players : IdTable<String>("player") {
     override val id: Column<EntityID<String>> = Players.varchar("email", 255)
         .entityId()
         .uniqueIndex("player_email_uniq_idx")
-    var username = varchar("username", 255)
+    var username = varchar("username", 255).uniqueIndex("uniq_username_idx")
     var firstName = varchar("first_name", 255)
     var lastName = varchar("last_name", 255)
 }

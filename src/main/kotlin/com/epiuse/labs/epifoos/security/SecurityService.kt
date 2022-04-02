@@ -2,8 +2,14 @@ package com.epiuse.labs.epifoos.security
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
+import com.epiuse.labs.epifoos.player.Player
+import com.epiuse.labs.epifoos.player.PlayerElo
+import com.epiuse.labs.epifoos.player.PlayerSummary
 import com.epiuse.labs.epifoos.security.cognito.CognitoService
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.dsl.module
+import java.time.Instant
 
 object SecurityService {
 
@@ -13,11 +19,41 @@ object SecurityService {
         return JWT.decode(signInResult.accessToken)
     }
 
-    fun signUp(signUpRequest: SignUpRequest) {
-        CognitoService.signUp(signUpRequest)
+    fun signUp(signUpRequest: SignUpRequest): PlayerSignUpResult {
+        val result = CognitoService.signUp(signUpRequest)
+
+        if (result.userConfirmed) {
+            val newPlayer: Player? = null
+            transaction {
+                Player.new(signUpRequest.email) {
+                    this.username = signUpRequest.username
+                    this.firstName = signUpRequest.firstName
+                    this.lastName = signUpRequest.lastName
+                }
+
+                PlayerElo.new {
+                    this.player = newPlayer!!
+                    this.capturedDate = Instant.now()
+                    this.change = 0.0
+                    this.elo = STARTING_ELO
+                }
+            }
+
+            return PlayerSignUpResult.Success(newPlayer!!.toSummary())
+        }
+        return PlayerSignUpResult.Failure("Player sign up failed due to an unknown error")
+    }
+
+    sealed class PlayerSignUpResult {
+
+        data class Success(val player: PlayerSummary) : PlayerSignUpResult()
+
+        data class Failure(val message: String) : PlayerSignUpResult()
     }
 
     fun confirmSignUp(confirmSignUpRequest: ConfirmSignUpRequest) {
         CognitoService.confirmSignUp(confirmSignUpRequest)
     }
+
+    private const val STARTING_ELO = 1000.0
 }
