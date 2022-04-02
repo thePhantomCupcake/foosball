@@ -20,12 +20,12 @@ object SecurityService {
     }
 
     fun signUp(signUpRequest: SignUpRequest): PlayerSignUpResult {
-        val result = CognitoService.signUp(signUpRequest)
+        try {
+            CognitoService.signUp(signUpRequest)
 
-        if (result.userConfirmed) {
-            val newPlayer: Player? = null
-            transaction {
-                Player.new(signUpRequest.email) {
+            var newPlayer: Player?
+            val playerSummary = transaction {
+                newPlayer = Player.new(signUpRequest.email) {
                     this.username = signUpRequest.username
                     this.firstName = signUpRequest.firstName
                     this.lastName = signUpRequest.lastName
@@ -37,11 +37,13 @@ object SecurityService {
                     this.change = 0.0
                     this.elo = STARTING_ELO
                 }
-            }
 
-            return PlayerSignUpResult.Success(newPlayer!!.toSummary())
+                newPlayer!!.toSummary()
+            }
+            return PlayerSignUpResult.Success(playerSummary)
+        } catch (e: Exception) {
+            return PlayerSignUpResult.Failure("Player sign up failed due to an unknown error")
         }
-        return PlayerSignUpResult.Failure("Player sign up failed due to an unknown error")
     }
 
     sealed class PlayerSignUpResult {

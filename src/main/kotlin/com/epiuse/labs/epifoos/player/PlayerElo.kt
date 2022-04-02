@@ -15,7 +15,7 @@ object PlayerElos : IntIdTable("player_elo") {
 
     var player = reference("player", Players)
     var capturedDate = timestamp("captured_date")
-    var match = reference("match_id", Matches)
+    var match = reference("match_id", Matches).nullable()
     var change = double("change")
     var elo = double("elo").default(PlayerElo.INITIAL_ELO)
 
@@ -40,7 +40,7 @@ class PlayerElo(id: EntityID<Int>) : IntEntity(id) {
 
     var player by Player referencedOn PlayerElos.player
     var capturedDate by PlayerElos.capturedDate
-    var match by Match referencedOn PlayerElos.match
+    var match by Match optionalReferencedOn PlayerElos.match
     var change by PlayerElos.change
     var elo by PlayerElos.elo
 
@@ -48,7 +48,7 @@ class PlayerElo(id: EntityID<Int>) : IntEntity(id) {
         return PlayerEloSummary(
             player.id.value,
             ISO_INSTANT.format(capturedDate),
-            match.id.value,
+            match?.id?.value,
             change,
             elo
         )
@@ -63,7 +63,7 @@ class PlayerElo(id: EntityID<Int>) : IntEntity(id) {
 data class PlayerEloSummary(
     val playerId: String,
     val capturedDate: String,
-    val matchId: Int,
+    val matchId: Int?,
     val change: Double,
     val elo: Double
 )
