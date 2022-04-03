@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.epiuse.labs.epifoos</groupId>
-    <artifactId>com-epiuse-labs-epifoos-epifoos</artifactId>
+    <artifactId>epifoos</artifactId>
     <version>0.0.1</version>
     <name>com.epiuse.labs.epifoos.epifoos</name>
     <description>com.epiuse.labs.epifoos.epifoos</description>

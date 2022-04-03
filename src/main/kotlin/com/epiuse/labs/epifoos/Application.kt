@@ -12,11 +12,17 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun main() {
+    val dbHost = System.getenv("DB_HOSTNAME")
+    val dbPort = System.getenv("DB_PORT")
+    val dbName = System.getenv("DB_NAME")
+    val dbUser = System.getenv("DB_USER")
+    val dbPass = System.getenv("DB_PASSWORD")
+
     Database.connect(
-        "jdbc:postgresql://localhost:5432/epifoos?stringtype=unspecified&reWriteBatchedInserts=true",
+        "jdbc:postgresql://$dbHost:$dbPort/$dbName?stringtype=unspecified&reWriteBatchedInserts=true",
         driver = "org.postgresql.Driver",
-        user = "epifoos",
-        password = "lastPass"
+        user = dbUser,
+        password = dbPass
     )
 
     transaction {
