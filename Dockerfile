@@ -5,7 +5,6 @@ COPY . /src
 WORKDIR /src
 RUN chmod 700 mvnw && ./mvnw clean install package -DskipTests
 RUN mkdir /app
-WORKDIR /app
 COPY ./target/*-jar-with-dependencies.jar /app/app.jar
 WORKDIR /app
 CMD ["java", "-jar", "app.jar"]
